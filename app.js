@@ -4,10 +4,16 @@ const morgan = require("morgan");
 const helmet = require("helmet");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const cors = require("cors");
 
-const productRoute = require("./routes/product");
+const productRoute = require("./routes/products");
+const userRoute = require("./routes/users");
+const orderRoute = require("./routes/orders");
+const categoriesRoute = require("./routes/categories");
 
 const app = express();
+app.use(cors());
+app.options("*", cors());
 
 const api = process.env.API_URL
 //http://localhost:5000/api/v1/products
@@ -18,6 +24,9 @@ app.use(express.json());
 app.use(helmet());
 app.use(morgan("tiny"));
 app.use("/api/v1/products", productRoute);
+app.use("/api/v1/users", userRoute);
+app.use("/api/v1/categories", categoriesRoute);
+app.use("/api/v1/orders", orderRoute);
 
 //connecting db
 mongoose.connect(process.env.MONGO_URL, {useNewUrlParser: true} , function(err){

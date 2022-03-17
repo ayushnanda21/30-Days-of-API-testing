@@ -1,5 +1,4 @@
 //acquiring model
-const { rawListeners } = require("../models/Product");
 const Product = require("../models/Product");
 
 //acquirng router
