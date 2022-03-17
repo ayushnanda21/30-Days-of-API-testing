@@ -11,9 +11,6 @@ const categorySchema = new mongoose.Schema(
     },
     color:{               //hashed color
         type: String
-    },
-    image:{
-        type: String
     }
 
 },
