@@ -55,7 +55,7 @@ router.post("/", async(req,res)=>{
 //update product
 router.put("/:id", async (req,res)=>{
     //id validation
-    if(mongoose.isValidObjectId(req.params.id)){
+    if(!mongoose.isValidObjectId(req.params.id)){
         res.status(400).json('Invalid id');
     };
     // to check if this category exist in db or not
@@ -88,10 +88,15 @@ router.put("/:id", async (req,res)=>{
 });
 
 
-//get all products
+//get all products +  query parameter passing for categories
 router.get("/", async(req,res)=>{
+    //localhost:5000/api/v1/products?categories=761354,659433
     try{
-    const productList = await Product.find().select("name image -_id").populate('category');
+    let filter = {};
+    if(req.query.categories){
+        filter = {category: req.query.categories.split(",")};
+    }
+    const productList = await Product.find(filter).select("name image -_id").populate('category');
     if(!productList){
         res.status(404).json({
             status: false,
@@ -147,3 +152,42 @@ router.delete("/:id", async (req,res)=>{
     }
 
 });
+
+//count of products in db
+
+router.get("/get/count", async (req,res) =>{
+
+    try{
+        const productCount  = await Product.countDocuments();
+        if(!productCount){
+            res.status(400).json({
+                success: false,
+                message: "Count error!"
+            });
+        } else{
+            res.status(200).json("Product count is : " + productCount);
+        }
+    }catch(err){
+        res.status(500).json({
+            error: err,
+            success: false
+        })
+    }
+});
+
+// getting featured products
+
+router.get("/get/featured/:count", async(req,res)=>{
+    try{
+    const count = req.params.count ? req.params.count : 0 ;
+    const productFeatured = await Product.find({isFeatured: true}).limit(+count);
+    if(!productFeatured){
+        res.status(400).json("Not featured");
+    } else{
+        res.status(200).json(productFeatured);
+    }
+    } catch(err){
+    res.status(500).json(err);
+    }
+});
+
