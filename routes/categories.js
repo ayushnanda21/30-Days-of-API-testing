@@ -41,7 +41,7 @@ router.put("/:id", async (req,res)=>{
         );
     
         if(!updatedCategory){
-            res.status(404).json({
+            res.status(400).json({
                 status: false,
                 message: "Category doesnt exist"
             });
