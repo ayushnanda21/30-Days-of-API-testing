@@ -66,6 +66,6 @@ const productSchema = new mongoose.Schema(
 // });
 
 // productSchema.set("toJSON", {
-//     virtuals: true,
+//     virtuals: true
 // });
 module.exports = mongoose.model("Product", productSchema);
