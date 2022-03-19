@@ -5,6 +5,12 @@ const bcrypt = require("bcrypt");
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 
+const {
+    verifyToken,
+    verifyTokenAndAuthorization,
+    verifyTokenAndAdmin
+  } = require("./verifyToken");
+
 //register user
 router.post("/register", async (req,res)=>{
 
@@ -48,7 +54,8 @@ router.post("/login", async(req,res)=>{
         
         //jwt
         const accessToken  = jwt.sign({
-                id : user._id
+                id : user._id,
+                isAdmin : user.isAdmin,
             },
             process.env.JWT_SEC,
             {expiresIn: "1d"}
@@ -66,7 +73,7 @@ router.post("/login", async(req,res)=>{
 
 
 //get user by id
-router.get("/:id", async (req,res)=>{
+router.get("/:id",verifyTokenAndAdmin,async (req,res)=>{
 
     const user = await User.findById(req.params.id);
     const {passwordHash , updatedAt,  ...other} = user._doc;
@@ -89,7 +96,7 @@ router.get("/:id", async (req,res)=>{
 });
 
 //get all users
-router.get("/", async(req,res)=>{
+router.get("/", verifyTokenAndAdmin,async(req,res)=>{
 
     try{
         const userList = await User.find().select('-passwordHash');
@@ -107,10 +114,10 @@ router.get("/", async(req,res)=>{
 });
 
 //delete user
-router.delete("/:id", async(req,res)=>{
+router.delete("/:id",verifyTokenAndAuthorization, async(req,res)=>{
 
     try{
-        const deleteUser = User.findByIdAndDelete(req.params.id);
+        const deleteUser = await User.findByIdAndDelete(req.params.id);
         if(!deleteUser){
             res.status(400).json({
                 success: false,
@@ -128,6 +135,61 @@ router.delete("/:id", async(req,res)=>{
 
 });
 
+//update user
+router.put("/:id" ,verifyTokenAndAuthorization,async(req,res)=>{
+
+    //if user wants to update password
+    //if tries to modify password
+    if(req.body.passwordHash){
+        try{    
+            const salt = await bcrypt.genSalt(10);
+            req.body.passwordHash = await bcrypt.hash(req.body.passwordHash, salt);
+        } catch(err){
+                return res.status(500).json(err);
+        }
+    }
+    //updating other details of user
+    try{
+        const updatedUser = await User.findByIdAndUpdate(
+            req.params.id,
+            {
+                $set: req.body,
+            },
+            {new : true}
+        );
+        if(!updatedUser){
+            res.status(400).json("User not found");
+        } else{
+            res.status(200).json(updatedUser);
+        }
+        
+    } catch(err){
+        res.status(500).json(err)
+    }
+
+
+});
+
+//count of users
+router.get("/get/count",verifyTokenAndAdmin, async (req,res) =>{
+
+    try{
+        const userCount  = await User.countDocuments();
+        if(!userCount){
+            res.status(400).json({
+                success: false,
+                message: "Count error!"
+            });
+        } else{
+            res.status(200).json("User count is : " + userCount);
+        }
+    }catch(err){
+        res.status(500).json({
+            error: err,
+            success: false
+        })
+    }
+});
 
 
 module.exports = router

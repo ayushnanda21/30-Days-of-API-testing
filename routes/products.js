@@ -6,11 +6,17 @@ const mongoose = require("mongoose");
 //acquirng router
 const router = require("express").Router();
 
+const {
+    verifyToken,
+    verifyTokenAndAuthorization,
+    verifyTokenAndAdmin
+  } = require("./verifyToken");
 
-module.exports = router
+
+
 
 //add new product
-router.post("/", async(req,res)=>{
+router.post("/",verifyTokenAndAdmin, async(req,res)=>{
 
     // to check if this category exist in db or not
     const category = await Category.findById(req.body.category);
@@ -53,7 +59,7 @@ router.post("/", async(req,res)=>{
 });
 
 //update product
-router.put("/:id", async (req,res)=>{
+router.put("/:id",verifyTokenAndAdmin, async (req,res)=>{
     //id validation
     if(!mongoose.isValidObjectId(req.params.id)){
         res.status(400).json('Invalid id');
@@ -131,7 +137,7 @@ router.get("/:id", async (req,res)=>{
 });
 
 //delete products
-router.delete("/:id", async (req,res)=>{
+router.delete("/:id",verifyTokenAndAdmin, async (req,res)=>{
     try{
         const deletedProduct = await Product.findById(req.params.id);
         if(!deletedProduct){
@@ -155,7 +161,7 @@ router.delete("/:id", async (req,res)=>{
 
 //count of products in db
 
-router.get("/get/count", async (req,res) =>{
+router.get("/get/count", verifyTokenAndAdmin,  async (req,res) =>{
 
     try{
         const productCount  = await Product.countDocuments();
@@ -191,3 +197,4 @@ router.get("/get/featured/:count", async(req,res)=>{
     }
 });
 
+module.exports = router

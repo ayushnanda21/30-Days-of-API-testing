@@ -10,6 +10,7 @@ const productRoute = require("./routes/products");
 const userRoute = require("./routes/users");
 const orderRoute = require("./routes/orders");
 const categoriesRoute = require("./routes/categories");
+//const authJwt = require('./helpers/jwt');
 
 const app = express();
 app.use(cors());
@@ -23,6 +24,9 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.json());
 app.use(helmet());
 app.use(morgan("tiny"));
+//app.use(authJwt());
+
+
 app.use("/api/v1/products", productRoute);
 app.use("/api/v1/users", userRoute);
 app.use("/api/v1/categories", categoriesRoute);

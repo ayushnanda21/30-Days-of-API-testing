@@ -3,9 +3,15 @@ const Category = require("../models/Category");
 //acquirng router
 const router = require("express").Router();
 
+const {
+    verifyToken,
+    verifyTokenAndAuthorization,
+    verifyTokenAndAdmin
+  } = require("./verifyToken");
+
 //add category
 
-router.post("/", async(req,res)=>{
+router.post("/", verifyTokenAndAdmin,async(req,res)=>{
 
     const newCategory =  new Category({
         name: req.body.name,
@@ -29,7 +35,7 @@ router.post("/", async(req,res)=>{
 });
 
 //update category
-router.put("/:id", async (req,res)=>{
+router.put("/:id",verifyTokenAndAdmin, async (req,res)=>{
 
     try{
     const updatedCategory = await Category.findByIdAndUpdate(
@@ -56,7 +62,7 @@ router.put("/:id", async (req,res)=>{
 
 //delete category
 
-router.delete("/:id", async (req,res)=>{
+router.delete("/:id",verifyToken, async (req,res)=>{
 
     try{
         const deletedCategory = await Category.findById(req.params.id);
@@ -81,7 +87,7 @@ router.delete("/:id", async (req,res)=>{
 
 
 //get category list
-router.get("/", async(req,res)=>{
+router.get("/", verifyTokenAndAuthorization, async(req,res)=>{
 
     try{
         const categoryList = await Category.find();
@@ -100,7 +106,7 @@ router.get("/", async(req,res)=>{
 });
 
 //get particular category by id
-router.get("/:id", async (req,res)=>{
+router.get("/:id", verifyTokenAndAuthorization,async (req,res)=>{
 
     const item = await Category.findById(req.params.id);
 
