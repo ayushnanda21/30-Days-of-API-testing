@@ -12,7 +12,7 @@ const OrderItem = require("../models/Order-Item");
 
 //creating order
 
-router.post("/", async(req,res)=>{
+router.post("/", verifyTokenAndAuthorization ,async(req,res)=>{
 
   const orderItemsIds = Promise.all(req.body.orderItems.map(async (orderItem) =>{
     let newOrderItem = new OrderItem({
@@ -85,7 +85,7 @@ router.get("/", verifyTokenAndAdmin,  async (req,res)=>{
 })
 
 //getting particular order 
-router.get("/:id", async(req,res)=>{
+router.get("/:id", verifyTokenAndAdmin ,async(req,res)=>{
 
   try{
     const order = await Order.findById(req.params.id)
@@ -104,7 +104,7 @@ router.get("/:id", async(req,res)=>{
 });
 
 // update status of order
-router.post("/:id" , async (req,res)=>{
+router.post("/:id" , verifyTokenAndAdmin ,async (req,res)=>{
 
   try{
     const updatedOrder = await Order.findByIdAndUpdate(req.params.id, 
@@ -149,6 +149,57 @@ router.delete("/:id", verifyTokenAndAdmin ,async (req,res)=>{
   }
 
 });
+
+
+//total sales
+
+router.get('/get/totalsales', verifyTokenAndAdmin ,async (req, res)=> {
+  const totalSales= await Order.aggregate([
+      { $group: { _id: null , totalsales : { $sum : '$totalPrice'}}}
+  ])
+
+  if(!totalSales) {
+      return res.status(400).send('The order sales cannot be generated')
+  }
+
+  res.send({totalsales: totalSales.pop().totalsales})
+})
+
+//order count
+
+router.get("/get/count", verifyTokenAndAdmin,  async (req,res) =>{
+
+  try{
+      const orderCount  = await Order.countDocuments();
+      if(!orderCount){
+          res.status(400).json({
+              success: false,
+              message: "Count error!"
+          });
+      } else{
+          res.status(200).json("Order count is : " + orderCount);
+      }
+  }catch(err){
+      res.status(500).json({
+          error: err,
+          success: false
+      })
+  }
+});
+
+//getting our order in front end for user display
+router.get('/get/userorders/:userid', verifyTokenAndAuthorization ,async (req, res) =>{
+  const userOrderList = await Order.find({user: req.params.userid}).populate({ 
+      path: 'orderItems', populate: {
+          path : 'product', populate: 'category'} 
+      }).sort({'dateOrdered': -1});
+
+  if(!userOrderList) {
+      res.status(500).json({success: false})
+  } 
+  res.status(200).json(userOrderList);
+})
+
 
 
 
