@@ -54,6 +54,90 @@ const orderItemsIdsResolved =  await orderItemsIds;
 
 });
 
+//getting all orders
+router.get("/", verifyTokenAndAdmin,  async (req,res)=>{
+
+  try{
+    const orderList = await Order.find().populate('user' ,'name');
+    if(!orderList){
+      res.status(400).json("Orders doesn't exist");
+    } else{
+      res.status(200).json(orderList);
+    }
+  } catch(err){
+    res.statusMessage(500).json(err);
+  }
+  
+
+})
+
+//getting particular order 
+router.get("/:id", async(req,res)=>{
+
+  try{
+    const order = await Order.findById(req.params.id)
+    .populate('user', 'name')
+    .populate({path: 'orderItems', populate: 'product'});
+
+    if(!order){
+      res.status(400).json("Order not found");
+    } else{
+      res.status(200).json(order);
+    }
+  } catch(err){
+    res.status(500).json(err);
+  }
+
+});
+
+// update status of order
+router.post("/:id" , async (req,res)=>{
+
+  try{
+    const updatedOrder = await Order.findByIdAndUpdate(req.params.id, 
+      {
+        $set: req.body,
+      },
+    {new : true}
+    );
+    if(!updatedOrder){
+      res.status(400).json("Order not found");
+  } else{
+      res.status(200).json(updatedOrder);
+  }
+  } catch(err){
+    res.status(500).json(err);
+  }
+
+});
+
+//delete order
+router.delete("/:id", verifyTokenAndAdmin ,async (req,res)=>{
+
+  try{
+      const order = await Order.findByIdAndRemove(req.params.id);
+        if(order){
+          await order.orderItems.map(async orderItem=>{
+            await OrderItem.findByIdAndRemove(orderItem)
+          })
+          res.status(200).json({
+            success: true,
+            message: "Order has been deleted"
+          });
+        }
+        else{
+            res.status(500).json({
+              success: false,
+              message: "Order not deleted...err"
+            });
+        }         
+  } catch(err){
+      res.status(500).json(err);
+  }
+
+});
+
+
 
 
 
