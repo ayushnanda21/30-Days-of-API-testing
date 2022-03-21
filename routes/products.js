@@ -254,4 +254,42 @@ router.get("/get/featured/:count", async(req,res)=>{
     }
 });
 
+
+//updating /adding gallery images for product endpoint
+router.put("/gallery-image/:id", verifyTokenAndAdmin, uploadOptions.array('images', 10) ,async(req,res)=>{
+
+    //id validation
+    if(!mongoose.isValidObjectId(req.params.id)){
+        res.status(400).json('Invalid id');
+    };
+    const files = req.files;
+    let imagesPaths = [];
+    const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`;
+    if(files){
+        files.map(file=>{
+            imagesPaths.push(`${basePath}${file.fileName}`);
+        });
+    }
+    
+    try{
+        const updaproduct = await Product.findByIdAndUpdate(req.params.id,
+            {
+                images: imagesPaths
+            },
+            {new : true}
+            )
+            
+        if(!updaproduct){
+            res.status(400).json("ERROR! Images edit not completed!")
+        } else{
+            res.status(200).json(updaproduct);
+        }
+        
+    } catch(err){
+        res.status(500).json(err);
+    }
+    
+
+});
+
 module.exports = router
