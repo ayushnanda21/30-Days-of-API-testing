@@ -5,12 +5,13 @@ const helmet = require("helmet");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const multer = require("multer");
 
+//acquiring routes
 const productRoute = require("./routes/products");
 const userRoute = require("./routes/users");
 const orderRoute = require("./routes/orders");
 const categoriesRoute = require("./routes/categories");
-//const authJwt = require('./helpers/jwt');
 
 const app = express();
 app.use(cors());

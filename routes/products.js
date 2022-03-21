@@ -12,23 +12,38 @@ const {
     verifyTokenAndAdmin
   } = require("./verifyToken");
 
+const multer= require("multer");
 
+  //image upload
+  const storage = multer.diskStorage({
+      destination: function (req, file, cb) {
+        cb(null, 'public/uploads')
+      },
+      filename: function (req, file, cb) {
+        const fileName = file.originalname.replace(' ', '-');
+        cb(null, fileName + '-' + Date.now());
+      }
+    })
+    
+    const uploadOptions = multer({ storage: storage })
 
 
 //add new product
-router.post("/",verifyTokenAndAdmin, async(req,res)=>{
+router.post("/",verifyTokenAndAdmin, uploadOptions.single('image') , async(req,res)=>{
 
     // to check if this category exist in db or not
     const category = await Category.findById(req.body.category);
     if(!category){
         return res.status(400).json("Invalid Category");
-    }
+    } 
 
+    const fileName = req.file.filename;
+    const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`;
     const newProduct = new Product({
         name: req.body.name,
         description: req.body.description,
         richDescription: req.body.richDescription,
-        image: req.body.image,
+        image: `${basePath}${fileName}`,
         brand: req.body.brand,
         price: req.body.price,
         category: req.body.category,
