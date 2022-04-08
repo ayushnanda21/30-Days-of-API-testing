@@ -16,7 +16,7 @@ router.post("/register", async (req,res)=>{
 
     try{
         //hashing password
-        const salt = await bcrypt.genSalt(10);
+        const salt = await bcrypt.genSalt(8);
         const hashedPassword = await bcrypt.hash(req.body.passwordHash, salt);
 
         //create new user
@@ -61,6 +61,7 @@ router.post("/login", async(req,res)=>{
             {expiresIn: "1d"}
         );
 
+        //Destructuring of objects
         const {passwordHash, updatedAt,  ...others} = user._doc;
 
         //if everything verified
