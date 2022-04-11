@@ -4,7 +4,6 @@ const productSchema = new mongoose.Schema(
 {
      name:{
          type: String,
-          required: true,
           maxlength: 50
      },
      description:{
@@ -35,7 +34,6 @@ const productSchema = new mongoose.Schema(
      category:{
          type: mongoose.Schema.Types.ObjectId,
          ref: 'Category',
-         required: true
      },
      countInStock:{
          type: Number,
