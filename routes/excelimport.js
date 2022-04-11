@@ -35,8 +35,8 @@ const upload = multer({storage : storage})
 
 //routes for uploading
 //upload excel file
-router.post('/uploadfile', upload.single("uploadfile"), (req, res) =>{
-    importExcelData2MongoDB(__dirname  + '/public/uploads' + req.file.filename);
+router.post('/uploadfile', upload.single("uploadfile"), (req, res) => {
+    importExcelData2MongoDB(req.file.path);
     res.status(200).json({
         'msg': 'File imported to database successfully',
         'file': req.file
@@ -45,7 +45,7 @@ router.post('/uploadfile', upload.single("uploadfile"), (req, res) =>{
 });
 
 // Import Excel File to MongoDB database
-function importExcelData2MongoDB(filePath){
+function importExcelData2MongoDB(filePath) {
     // -> Read Excel File to Json Data
     const excelData = excelToJson({
     sourceFile: filePath,
