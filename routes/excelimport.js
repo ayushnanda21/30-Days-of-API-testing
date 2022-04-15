@@ -33,10 +33,42 @@ const storage = multer.diskStorage({
 
 const upload = multer({storage : storage})
 
+//integrating SMTP
+
+var email;
+
+//transport function
+var transport = nodemailer.createTransport({
+    host: "smtp.mailtrap.io",
+    port: 2525,
+    auth: {
+      user: "",
+      pass: ""
+    }
+    });
+
 //routes for uploading
-//upload excel file
-router.post('/uploadfile', upload.single("uploadfile"), (req, res) => {
+//upload excel file and sending mail
+router.post('/uploadfile', upload.single("uploadfile"), verifyTokenAndAdmin,  (req, res) => {
     importExcelData2MongoDB(req.file.path);
+
+    email =  req.body.email;
+    console.log(req.body);
+    const message = {
+        from: "smtp.mailtrap.io",
+        to: email,
+        subject: "Single req",
+        text: "Working successfully"
+    };
+
+    transport.sendMail(message,  (err,info)=>{
+        if(err){
+            console.log(err);
+        } else{
+            console.log('Mail sent'  +  info.response);
+        }
+    });
+
     res.status(200).json({
         'msg': 'File imported to database successfully',
         'file': req.file
@@ -45,7 +77,7 @@ router.post('/uploadfile', upload.single("uploadfile"), (req, res) => {
 });
 
 // Import Excel File to MongoDB database
-function importExcelData2MongoDB(filePath) {
+async function importExcelData2MongoDB(filePath) {
     // -> Read Excel File to Json Data
     const excelData = excelToJson({
     sourceFile: filePath,
@@ -80,14 +112,14 @@ function importExcelData2MongoDB(filePath) {
     console.log(filePath)
     console.log(excelData);
 
-// //Insert jsonobject to mongodb
-Products.insertMany(excelData.Sheet1 , (err, res)=>{
-    if(err){
+    //Insert jsonobject to mongodb
+    try{
+        await Products.insertMany(excelData.Sheet1);
+        console.log("Inserted successfully");
+        
+    } catch(err){
         console.log(err);
     }
-
-    console.log("Inserted Successfully");
-});
 
 
 }
