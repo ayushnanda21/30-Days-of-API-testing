@@ -16,6 +16,7 @@ const bodyParser = require("body-parser")
 const mongoose  =require("mongoose");
 const path = require("path");
 const excelToJson = require("convert-excel-to-json");
+const nodemailer = require("nodemailer")
 
 //models import
 const Products = require("../models/Product");

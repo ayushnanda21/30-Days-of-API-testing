@@ -11,6 +11,18 @@ const {
     verifyTokenAndAdmin
   } = require("./verifyToken");
 
+
+  router.get("/test", (req,res)=>{
+      res.status(200).json("Start testing")
+  })
+
+router.post("/testpost", (req,res)=>{
+    if(!req.body.firstName){
+        res.status(400).json("You need to pass firstname")
+    };
+    res.status(201).json("Got")
+});
+
 //register user
 router.post("/register", async (req,res)=>{
 
@@ -31,12 +43,18 @@ router.post("/register", async (req,res)=>{
             city: req.body.city,
             country: req.body.country
         });
-
+    
         //save and response
         const savedUser = await newUser.save();
-        res.status(201).json(savedUser);
+        res.status(201).json({
+            data: savedUser,
+            message: "success"
+        });
     } catch(err){
-        res.status(500).json(err);
+        res.status(500).json({
+            error: err,
+            message: "failed"
+        });
     }
 
 
@@ -47,7 +65,7 @@ router.post("/login", async(req,res)=>{
 
     try{
         const user = await User.findOne({email: req.body.email});
-        !user && res.status(401).json("User not found");
+        !user && res.status(404).json("User not found");
 
         const validPassword = await bcrypt.compare(req.body.passwordHash , user.passwordHash);
         !validPassword && res.status(400).json("Wrong password");
@@ -65,16 +83,22 @@ router.post("/login", async(req,res)=>{
         const {passwordHash, updatedAt,  ...others} = user._doc;
 
         //if everything verified
-        res.status(200).json({...others ,accessToken});
+        res.status(200).json({
+            ...others ,accessToken,
+            message: "Success"
+        });
     } catch(err){
         res.status(500).json(err);
     }
     
 });
 
+router.get("/k", (req,res)=>{
+    res.status(200).json("working");
+});
 
 //get user by id
-router.get("/:id",verifyTokenAndAdmin,async (req,res)=>{
+router.get("/:id",verifyTokenAndAdmin, async (req,res)=>{
 
     const user = await User.findById(req.params.id);
     const {passwordHash , updatedAt,  ...other} = user._doc;
@@ -91,10 +115,8 @@ router.get("/:id",verifyTokenAndAdmin,async (req,res)=>{
     } catch(err){
         res.status(500).json(err);
     }
-
-
-
 });
+
 
 //get all users
 router.get("/", verifyTokenAndAdmin,async(req,res)=>{
@@ -113,6 +135,8 @@ router.get("/", verifyTokenAndAdmin,async(req,res)=>{
         res.status(500).json(err);
     }
 });
+
+
 
 //delete user
 router.delete("/:id",verifyTokenAndAuthorization, async(req,res)=>{
@@ -191,6 +215,9 @@ router.get("/get/count",verifyTokenAndAdmin, async (req,res) =>{
         })
     }
 });
+
+
+
 
 
 module.exports = router

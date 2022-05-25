@@ -11,7 +11,7 @@ const {
 
 //add category
 
-router.post("/", verifyTokenAndAdmin,async(req,res)=>{
+router.post("/" ,async(req,res)=>{
 
     const newCategory =  new Category({
         name: req.body.name,
@@ -35,7 +35,7 @@ router.post("/", verifyTokenAndAdmin,async(req,res)=>{
 });
 
 //update category
-router.put("/:id",verifyTokenAndAdmin, async (req,res)=>{
+router.put("/:id", async (req,res)=>{
 
     try{
     const updatedCategory = await Category.findByIdAndUpdate(
@@ -52,7 +52,11 @@ router.put("/:id",verifyTokenAndAdmin, async (req,res)=>{
                 message: "Category doesnt exist"
             });
         } else{
-            res.status(200).json(updatedCategory)
+            res.status(200).json({
+                data : updatedCategory,
+                success: true,
+                message: "Successfully updated"
+            })
 
         }
     } catch(err){
@@ -62,7 +66,7 @@ router.put("/:id",verifyTokenAndAdmin, async (req,res)=>{
 
 //delete category
 
-router.delete("/:id",verifyTokenAndAdmin, async (req,res)=>{
+router.delete("/:id", async (req,res)=>{
 
     try{
         const deletedCategory = await Category.findById(req.params.id);
@@ -87,18 +91,21 @@ router.delete("/:id",verifyTokenAndAdmin, async (req,res)=>{
 
 
 //get category list
-router.get("/", verifyTokenAndAuthorization, async(req,res)=>{
+router.get("/", async(req,res)=>{
 
+    const categoryList = await Category.find();
     try{
-        const categoryList = await Category.find();
-        if(!categoryList){
+        if(categoryList.length === 0){
             res.status(404).json({
                 success: false,
-                message : "Category list doesn't exist"
+                message : "Categories Empty"
             });
         } else{
-            res.status(200).json(categoryList)
-        }
+            res.status(200).json({
+                data : categoryList,
+                message: "success"
+            });
+        }  
     } catch(err){
         res.status(500).json(err);
     }
@@ -106,11 +113,10 @@ router.get("/", verifyTokenAndAuthorization, async(req,res)=>{
 });
 
 //get particular category by id
-router.get("/:id", verifyTokenAndAuthorization,async (req,res)=>{
-
-    const item = await Category.findById(req.params.id);
+router.get("/:id",async (req,res)=>{
 
     try{
+        const item = await Category.findById(req.params.id);
         if(!item){
             res.status(404).json({
                 success: false,
