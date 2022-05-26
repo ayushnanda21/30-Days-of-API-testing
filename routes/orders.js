@@ -12,7 +12,7 @@ const OrderItem = require("../models/Order-Item");
 
 //creating order
 
-router.post("/", verifyTokenAndAuthorization ,async(req,res)=>{
+router.post("/" ,async(req,res)=>{
 
   const orderItemsIds = Promise.all(req.body.orderItems.map(async (orderItem) =>{
     let newOrderItem = new OrderItem({
@@ -68,14 +68,18 @@ const totalPrice = totalPrices.reduce((a,b)=> a+b, 0);
 });
 
 //getting all orders
-router.get("/", verifyTokenAndAdmin,  async (req,res)=>{
+router.get("/",  async (req,res)=>{
 
   try{
     const orderList = await Order.find().populate('user' ,'name');
     if(!orderList){
       res.status(400).json("Orders doesn't exist");
     } else{
-      res.status(200).json(orderList);
+      res.status(200).json({
+        data: orderList,
+        message: "Success",
+        success: true
+      });
     }
   } catch(err){
     res.statusMessage(500).json(err);
@@ -85,7 +89,7 @@ router.get("/", verifyTokenAndAdmin,  async (req,res)=>{
 })
 
 //getting particular order 
-router.get("/:id", verifyTokenAndAdmin ,async(req,res)=>{
+router.get("/:id" ,async(req,res)=>{
 
   try{
     const order = await Order.findById(req.params.id)
@@ -93,9 +97,16 @@ router.get("/:id", verifyTokenAndAdmin ,async(req,res)=>{
     .populate({path: 'orderItems', populate: 'product'});
 
     if(!order){
-      res.status(400).json("Order not found");
+      res.status(404).json({
+        message: "Order not found",
+        success: false
+      });
     } else{
-      res.status(200).json(order);
+      res.status(200).json({
+        data: order,
+        message: "Order found",
+        success: true
+      });
     }
   } catch(err){
     res.status(500).json(err);
@@ -125,10 +136,11 @@ router.post("/:id" , verifyTokenAndAdmin ,async (req,res)=>{
 });
 
 //delete order
-router.delete("/:id", verifyTokenAndAdmin ,async (req,res)=>{
+router.delete("/:id",async (req,res)=>{
 
   try{
-      const order = await Order.findByIdAndRemove(req.params.id);
+      const order = await Order.findById(req.params.id);
+
         if(order){
           await order.orderItems.map(async orderItem=>{
             await OrderItem.findByIdAndRemove(orderItem)
@@ -139,7 +151,7 @@ router.delete("/:id", verifyTokenAndAdmin ,async (req,res)=>{
           });
         }
         else{
-            res.status(500).json({
+            res.status(404).json({
               success: false,
               message: "Order not deleted...err"
             });
