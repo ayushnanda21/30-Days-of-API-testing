@@ -179,7 +179,7 @@ router.get('/get/totalsales', verifyTokenAndAdmin ,async (req, res)=> {
 
 //order count
 
-router.get("/get/count", verifyTokenAndAdmin,  async (req,res) =>{
+router.get("/get/count",  async (req,res) =>{
 
   try{
       const orderCount  = await Order.countDocuments();
@@ -200,16 +200,19 @@ router.get("/get/count", verifyTokenAndAdmin,  async (req,res) =>{
 });
 
 //getting our order in front end for user display
-router.get('/get/userorders/:userid', verifyTokenAndAuthorization ,async (req, res) =>{
+router.get('/get/userorders/:userid' ,async (req, res) =>{
   const userOrderList = await Order.find({user: req.params.userid}).populate({ 
       path: 'orderItems', populate: {
           path : 'product', populate: 'category'} 
       }).sort({'dateOrdered': -1});
 
   if(!userOrderList) {
-      res.status(500).json({success: false})
+      res.status(404).json({success: false})
   } 
-  res.status(200).json(userOrderList);
+  res.status(200).json({
+    data:userOrderList,
+    success: true,
+  });
 })
 
 
