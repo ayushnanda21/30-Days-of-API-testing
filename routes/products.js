@@ -47,7 +47,7 @@ const FILE_TYPE_MAP = {
 
 
 //add new product
-router.post("/",verifyTokenAndAdmin, uploadOptions.single('image') , async(req,res)=>{
+router.post("/", uploadOptions.single('image') , async(req,res)=>{
 
     // to check if this category exist in db or not
     const category = await Category.findById(req.body.category);
@@ -57,17 +57,17 @@ router.post("/",verifyTokenAndAdmin, uploadOptions.single('image') , async(req,r
 
     //if no image uploaded
     const file = req.file
-    if(!file){
-        return res.status(400).json("No image attached");
-    }
+    // if(!file){
+    //     return res.status(400).json("No image attached");
+    // }
 
-    const fileName = req.file.filename;
-    const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`;
+    // const fileName = req.file.filename;
+    // const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`;
     const newProduct = new Product({
         name: req.body.name,
         description: req.body.description,
         richDescription: req.body.richDescription,
-        image: `${basePath}${fileName}`,
+        // image: `${basePath}${fileName}`,
         brand: req.body.brand,
         price: req.body.price,
         category: req.body.category,
@@ -87,7 +87,6 @@ router.post("/",verifyTokenAndAdmin, uploadOptions.single('image') , async(req,r
         } else{
             res.status(201).json(savedProduct);
         }
-        res.status(201).json(savedProduct);
     } catch(err){
         res.status(500).json({
             error: err,
@@ -98,32 +97,32 @@ router.post("/",verifyTokenAndAdmin, uploadOptions.single('image') , async(req,r
 });
 
 //update product
-router.put("/:id",verifyTokenAndAdmin, uploadOptions.single('image') ,async (req,res)=>{
+router.put("/:id", uploadOptions.single('image') ,async (req,res)=>{
     //id validation
     if(!mongoose.isValidObjectId(req.params.id)){
         res.status(400).json('Invalid id');
     };
     // to check if this category exist in db or not
-    const category = await Category.findById(req.body.category);
-    if(!category){
-        return res.status(400).json("Invalid Category");
-    }
+    // const category = await Category.findById(req.body.category);
+    // if(!category){
+    //     return res.status(400).json("Invalid Category");
+    // }
 
-    const product = await Product.findById(req.params.id);
-    if(!product){
-        return res.status(400).json("Invalid Product");
-    }
+    // const product = await Product.findById(req.params.id);
+    // if(!product){
+    //     return res.status(400).json("Invalid Product");
+    // }
 
-    const file = req.file;
-    let imagepath;
+    // const file = req.file;
+    // let imagepath;
 
-    if(file){
-    const fileName = req.file.filename;
-    const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`;
-    imagepath =`${basePath}${fileName}`;
-    } else{
-        imagepath = product.image;
-    }
+    // if(file){
+    // const fileName = req.file.filename;
+    // const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`;
+    // imagepath =`${basePath}${fileName}`;
+    // } else{
+    //     imagepath = product.image;
+    // }
 
     
 
@@ -142,7 +141,11 @@ router.put("/:id",verifyTokenAndAdmin, uploadOptions.single('image') ,async (req
                 message: "Product doesnt exist"
             });
         } else{
-            res.status(200).json(updatedProduct);
+            res.status(200).json({
+                data : updatedProduct,
+                success: true,
+                message: "Successfully updated"
+            });
 
         }
     } catch(err){
