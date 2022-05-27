@@ -49,7 +49,7 @@ JWT_SECRET=<your_secret_key>
 
 ```json
 "scripts": {
-    "dev": "nodemon app.js"
+    "start": "nodemon app.js"
   },
 ```
 ## Mongodb
@@ -60,7 +60,13 @@ JWT_SECRET=<your_secret_key>
 
 ## Running the tests
 
-No test scripts available
+```json
+"scripts": {
+    "test": "jest --forceExit --detectOpenHandles --maxWorkers=1",
+    "test:watch": "jest --watch",
+    "coverage": "jest --coverage"
+  },
+```
 
 ## Deployment
 
@@ -79,7 +85,8 @@ Deployment information coming soon :)
 - [bcrypt](https://github.com/kelektiv/node.bcrypt.js#readme) - bcrypt is a password hashing function.
 - [passport](http://www.passportjs.org) - Passport is authentication middleware for Node.js. Extremely flexible and modular, Passport can be unobtrusively dropped in to any Express-based web application.
 - [multer](https://www.npmjs.com/package/multer) - Multer is a node. js middleware for handling multipart/form-data , which is primarily used for uploading files.
-
+-[jest](https://jestjs.io/)-  testing framework designed to ensure correctness of any JavaScript codebase. It allows you to write tests with an approachable, familiar and feature-rich API that gives you results quickly
+-[supertest](https://www.npmjs.com/package/supertest) - Supertest module will make api request in jest tests, query our endpoints and return reponses to test conducted
 
 ## Contributing
 
