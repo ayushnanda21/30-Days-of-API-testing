@@ -156,5 +156,32 @@ describe("Delete Orders /DELETE", ()=>{
     });
 });
 
+// describe("Create Orders /POST", ()=>{
+
+//     it("Post order - Success - Created", async()=>{
+
+//         const orderItemsIds = [
+//             "628f3c7450a1a15bcf7638cc",
+//             "628f3c7450a1a15bcf7638cd"
+//         ]
+//         const totalPrice = 65912
+//         const res = await request.post("/api/v1/orders").send({
+//             "orderItems": orderItemsIds,
+//             "shippingAddress1": "Office Ow2",
+//             "shippingAddress2": "Near tech",
+//             "city": "Singapore",
+//             "zip": "94704596",
+//             "country": "Singapore",
+//             "phone": 6010634,
+//             "status": "pending",
+//             "totalPrice": totalPrice,
+//             "user": "6284979547db9dd1bcd0296d",
+//             "_id": "628f3c7450a1a15bcf7638d4",
+//         })
+//         console.log(res);
+//     });
+
+// });
+
 
 

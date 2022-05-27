@@ -166,7 +166,10 @@ router.get("/", async(req,res)=>{
             message: "Cant' get all products"
         });
     } else{
-        res.status(200).json(productList);
+        res.status(200).json({
+            data: productList,
+            message: "All products fetching success"
+        });
     }
     }catch(err){
     res.status(500).json(err);
@@ -185,7 +188,11 @@ router.get("/:id", async (req,res)=>{
                 message : "Product you requested doesn't exist"
             });
         } else{
-            res.status(200).json(product);
+            res.status(200).json({
+                data : product,
+                success: true,
+                message: "Product found"
+            });
         }
     } catch(err){
         res.status(500).json(err);
@@ -194,11 +201,11 @@ router.get("/:id", async (req,res)=>{
 });
 
 //delete products
-router.delete("/:id",verifyTokenAndAdmin, async (req,res)=>{
+router.delete("/:id", async (req,res)=>{
     try{
         const deletedProduct = await Product.findById(req.params.id);
         if(!deletedProduct){
-            res.status(400).json({
+            res.status(404).json({
                 success: false,
                 message : "Product doesn't exist"
             });
@@ -218,7 +225,7 @@ router.delete("/:id",verifyTokenAndAdmin, async (req,res)=>{
 
 //count of products in db
 
-router.get("/get/count", verifyTokenAndAdmin,  async (req,res) =>{
+router.get("/get/count",  async (req,res) =>{
 
     try{
         const productCount  = await Product.countDocuments();
@@ -247,7 +254,11 @@ router.get("/get/featured/:count", async(req,res)=>{
     if(!productFeatured){
         res.status(400).json("Not featured");
     } else{
-        res.status(200).json(productFeatured);
+        res.status(200).json({
+            data : productFeatured,
+            success: true,
+            message: "Feautured product"
+        });
     }
     } catch(err){
     res.status(500).json(err);
