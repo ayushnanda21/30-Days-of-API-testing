@@ -12,17 +12,6 @@ const {
   } = require("./verifyToken");
 
 
-  router.get("/test", (req,res)=>{
-      res.status(200).json("Start testing")
-  })
-
-router.post("/testpost", (req,res)=>{
-    if(!req.body.firstName){
-        res.status(400).json("You need to pass firstname")
-    };
-    res.status(201).json("Got")
-});
-
 //register user
 router.post("/register", async (req,res)=>{
 
@@ -93,15 +82,11 @@ router.post("/login", async(req,res)=>{
     
 });
 
-router.get("/k", (req,res)=>{
-    res.status(200).json("working");
-});
-
 //get user by id
-router.get("/:id",verifyTokenAndAdmin, async (req,res)=>{
+router.get("/:id", async (req,res)=>{
 
     const user = await User.findById(req.params.id);
-    const {passwordHash , updatedAt,  ...other} = user._doc;
+    //const {passwordHash , updatedAt,  ...other} = user._doc;
 
     try{
         if(!user){
@@ -110,7 +95,11 @@ router.get("/:id",verifyTokenAndAdmin, async (req,res)=>{
                 message : "User not found with this id!"
             });
         } else{
-            res.status(200).json(other);
+            res.status(200).json({
+                data: user,
+                message: "User is captured",
+                success: true
+            });
         }
     } catch(err){
         res.status(500).json(err);
@@ -119,7 +108,7 @@ router.get("/:id",verifyTokenAndAdmin, async (req,res)=>{
 
 
 //get all users
-router.get("/", verifyTokenAndAdmin,async(req,res)=>{
+router.get("/",async(req,res)=>{
 
     try{
         const userList = await User.find().select('-passwordHash');
@@ -129,7 +118,11 @@ router.get("/", verifyTokenAndAdmin,async(req,res)=>{
                 message : "user list doesn't exist"
             });
         } else{
-            res.status(200).json(userList)
+            res.status(200).json({
+                data : userList,
+                success: true,
+                message: "Complete user list captured"
+            })
         }
     } catch(err){
         res.status(500).json(err);
@@ -139,7 +132,7 @@ router.get("/", verifyTokenAndAdmin,async(req,res)=>{
 
 
 //delete user
-router.delete("/:id",verifyTokenAndAuthorization, async(req,res)=>{
+router.delete("/:id", async(req,res)=>{
 
     try{
         const deleteUser = await User.findByIdAndDelete(req.params.id);
@@ -161,7 +154,7 @@ router.delete("/:id",verifyTokenAndAuthorization, async(req,res)=>{
 });
 
 //update user
-router.put("/:id" ,verifyTokenAndAuthorization,async(req,res)=>{
+router.put("/:id" ,async(req,res)=>{
 
     //if user wants to update password
     //if tries to modify password
@@ -185,7 +178,11 @@ router.put("/:id" ,verifyTokenAndAuthorization,async(req,res)=>{
         if(!updatedUser){
             res.status(400).json("User not found");
         } else{
-            res.status(200).json(updatedUser);
+            res.status(200).json({
+                data : updatedUser,
+                message: "Successfully updated",
+                success: true
+            });
         }
         
     } catch(err){
@@ -196,7 +193,7 @@ router.put("/:id" ,verifyTokenAndAuthorization,async(req,res)=>{
 });
 
 //count of users
-router.get("/get/count",verifyTokenAndAdmin, async (req,res) =>{
+router.get("/get/count", async (req,res) =>{
 
     try{
         const userCount  = await User.countDocuments();
